@@ -88,14 +88,36 @@ export class ProductService {
     }
   }
 
-  public static async getAllProducts(page: number, limit: number) {
+  public static async getAllProducts(
+    page: number,
+    limit: number,
+    searchTerm?: string,
+    categoryFilter?: string
+  ) {
     try {
       const skip = (page - 1) * limit;
 
-      return {
-        products: await prisma.product.findMany({
+      const where: any = {
+        ...(searchTerm && {
+          title: {
+            contains: searchTerm,
+            mode: "insensitive",
+          },
+        }),
+        ...(categoryFilter && {
+          categories: {
+            equals: categoryFilter,
+            mode: "insensitive",
+          },
+        }),
+      };
+
+      const [products, totalCount] = await Promise.all([
+        prisma.product.findMany({
+          where,
           skip,
           take: limit,
+          orderBy: { createdAt: "desc" },
           include: {
             owner: {
               select: {
@@ -108,17 +130,20 @@ export class ProductService {
             transactions: true,
           },
         }),
-        totalCount: await prisma.product.count(),
-      };
+        prisma.product.count({ where }),
+      ]);
+
+      return { products, totalCount };
     } catch (error) {
       console.error("Error fetching products:", error);
       throw new Error(
         error instanceof Error
           ? `Fetching products failed: ${error.message}`
-          : "An unexpected error occurred while fetching the products."
+          : "An unexpected error occurred"
       );
     }
   }
+
 
   public static async getProductById(id: string) {
     try {

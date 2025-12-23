@@ -122,12 +122,55 @@ export class TransactionService {
     });
   }
 
-  public static async buyProduct() {
+  public static async buyProduct(userId: string, productId: string) {
     console.log("To be implemented");
+    const product = await prisma.product.findUnique({
+      where: {
+        id: productId,
+      },
+    });
+
+    if (!product) {
+      throw new Error("Product not found");
+    }
+
+    if (product.ownerId === userId) {
+      throw new Error("Cannot buy your own product");
+    }
+
+    return await prisma.transaction.create({
+      data: {
+        customerId: userId,
+        productId: productId,
+        rentTimeFrom: new Date(),
+        rentTimeTo: new Date(),
+        transactionType: TransactionType.BUY,
+      },
+      include: { product: true, customer: true }
+    })
+
   }
 
-  public static async rentProduct() {
-    console.log("To be implemented");
+  public static async rentProduct(userId: string, productId: string, rentTimeFrom: Date, rentTimeTo: Date) {
+    const product = await prisma.product.findUnique({
+      where: {
+        id: productId,
+      },
+    });
+    if (!userId) throw new Error("User not found");
+    if (!product) throw new Error("Product not found");
+    if (product!.ownerId === userId) throw new Error("Cannot Rent your own product");
+
+    return await prisma.transaction.create({
+      data: {
+        customerId: userId,
+        productId: productId,
+        rentTimeFrom: rentTimeFrom,
+        rentTimeTo: rentTimeTo,
+        transactionType: TransactionType.RENT,
+      },
+      include: { product: true, customer: true }
+    })
   }
 }
 

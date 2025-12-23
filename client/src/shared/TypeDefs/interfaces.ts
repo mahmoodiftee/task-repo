@@ -75,7 +75,7 @@ export interface IProductCardProps {
 export interface IRentModalProps {
   opened: boolean;
   onClose: () => void;
-  onConfirm: () => void;
+  onConfirm: (startDate: Date, endDate: Date) => void;
   productId: string;
   productTitle?: string;
   rentPrice: number;

@@ -1,8 +1,8 @@
 import { gql } from "@apollo/client";
 
 export const GET_ALL_PRODUCTS = gql`
-  query GetAllProducts($page: Int!, $limit: Int!) {
-    getAllProducts(page: $page, limit: $limit) {
+  query GetAllProducts($page: Int!, $limit: Int!, $searchTerm: String, $categoryFilter: String) {
+    getAllProducts(page: $page, limit: $limit, searchTerm: $searchTerm, categoryFilter: $categoryFilter) {
       products {
         id
         title

@@ -15,11 +15,11 @@ const queries = {
   // Get all products
   getAllProducts: async (
     _: unknown,
-    args: { page: number; limit: number },
+    args: { page: number; limit: number; searchTerm?: string; categoryFilter?: string },
     context: IContextType
   ) => {
     if (!context || !context.user) throw new Error('Unauthorized');
-    return await ProductService.getAllProducts(args.page, args.limit);
+    return await ProductService.getAllProducts(args.page, args.limit, args.searchTerm || '', args.categoryFilter || '');
   },
 
   // Get all products of the logged-in user

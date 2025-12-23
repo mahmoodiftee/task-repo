@@ -24,7 +24,9 @@ const RentModal: React.FC<IRentModalProps> = ({
   };
 
   const handleConfirm = () => {
-    alert("To be implemented.");
+    if (startDate && endDate) {
+      onConfirm(startDate, endDate);
+    }
   };
 
   const duration =

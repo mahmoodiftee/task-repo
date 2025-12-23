@@ -12,7 +12,7 @@ const BuyModal: React.FC<IBuyModalProps> = ({
   productPrice,
 }) => {
   const handleConfirm = () => {
-    alert("To be implemented");
+    onConfirm();
   };
 
   return (

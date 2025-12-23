@@ -19,6 +19,7 @@ async function createApolloGraphqlServer() {
       type Mutation {
         ${User.mutations}
         ${Product.mutations}
+        ${Transaction.mutations}
       }`,
 
     resolvers: {
@@ -30,6 +31,7 @@ async function createApolloGraphqlServer() {
       Mutation: {
         ...User.resolvers.mutations,
         ...Product.resolvers.mutations,
+        ...Transaction.resolvers.mutations,
       },
     },
   });

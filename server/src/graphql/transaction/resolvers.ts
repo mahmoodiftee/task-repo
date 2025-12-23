@@ -43,6 +43,26 @@ const queries = {
   },
 };
 
+const mutations = {
+  buyProduct: async (
+    _: unknown,
+    args: { productId: string },
+    context: IContextType
+  ) => {
+    if (!context || !context.user) throw new Error("Unauthorized");
+    return TransactionService.buyProduct(context.user.id, args.productId);
+  },
+  rentProduct: async (
+    _: unknown,
+    args: { productId: string, rentTimeFrom: Date, rentTimeTo: Date },
+    context: IContextType
+  ) => {
+    if (!context || !context.user) throw new Error("Unauthorized")
+    return TransactionService.rentProduct(context.user.id, args.productId, new Date(args.rentTimeFrom), new Date(args.rentTimeTo))
+  },
+};
+
 export const resolvers = {
   queries,
+  mutations,
 };

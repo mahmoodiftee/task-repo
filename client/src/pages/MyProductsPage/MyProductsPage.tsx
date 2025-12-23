@@ -9,6 +9,7 @@ import { DELETE_PRODUCT } from "../../graphql/product/mutations";
 import { GET_PRODUCTS_BY_USER_ID } from "../../graphql/product/queries";
 import { useAuth } from "../../shared/Hooks/useAuth";
 import { IProduct } from "../../shared/TypeDefs";
+import { useEffect } from "react";
 
 const MyProductsPage = () => {
   const { user } = useAuth();
@@ -22,11 +23,23 @@ const MyProductsPage = () => {
 
   const products = data?.getProductsByUserId || [];
 
+  const { refetch, loading: refetchLoading } = useQuery(GET_PRODUCTS_BY_USER_ID, {
+    variables: { ownerId: user?.id },
+    skip: !user,
+  });
+
+  useEffect(() => {
+    refetch();
+  }, []);
+
+  if (refetchLoading) return <Loading />;
+
   const handleDelete = async (productId: string) => {
     try {
       await deleteProduct({
         variables: { id: productId },
       });
+      refetch();
     } catch (error) {
       console.error("Error deleting product:", error);
       notifications.show({
