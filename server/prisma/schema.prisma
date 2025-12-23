@@ -1,0 +1,65 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String        @id @default(uuid())
+  firstName    String        @map("first_name")
+  lastName     String?       @map("last_name")
+  address      String?
+  email        String        @unique
+  phoneNumber  String?       @unique @map("phone_number")
+  password     String
+  products     Product[]
+  transactions Transaction[]
+
+  @@map("users")
+}
+
+model Product {
+  id            String        @id @default(uuid())
+  title         String?
+  description   String?
+  viewCount     Int           @default(0)
+  createdAt     DateTime      @default(now()) @map("created_at")
+  ownerId       String        @map("owner_id")
+  purchasePrice Float?        @map("purchase_price")
+  rentPrice     Float?        @map("rent_price")
+  updatedAt     DateTime      @updatedAt @map("updated_at")
+  rentalPeriod  RentalPeriod? @map("rental_period")
+  categories    String?
+  owner         User          @relation(fields: [ownerId], references: [id])
+  transactions  Transaction[]
+
+  @@map("products")
+}
+
+model Transaction {
+  id              String          @id @default(uuid())
+  createdAt       DateTime        @default(now()) @map("created_at")
+  customerId      String          @map("customer_id")
+  productId       String          @map("product_id")
+  rentTimeFrom    DateTime        @map("rent_time_from")
+  rentTimeTo      DateTime        @map("rent_time_to")
+  transactionType TransactionType @map("transaction_type")
+  customer        User            @relation(fields: [customerId], references: [id])
+  product         Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("transactions")
+}
+
+enum RentalPeriod {
+  DAY
+  WEEK
+  MONTH
+}
+
+enum TransactionType {
+  BUY
+  RENT
+}

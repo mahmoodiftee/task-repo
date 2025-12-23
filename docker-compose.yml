@@ -1,0 +1,18 @@
+version: "3.9"
+
+services:
+  db:
+    container_name: teebay-db
+    image: postgres:12
+    restart: always
+    environment:
+      POSTGRES_USER: teebay
+      POSTGRES_PASSWORD: teebay
+      POSTGRES_DB: teebay
+    ports:
+      - "5434:5432"
+    volumes:
+      - pd_data:/var/lib/postgresql/data
+
+volumes:
+  pd_data: {}
