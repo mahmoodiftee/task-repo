@@ -67,6 +67,10 @@ export interface IProductCardProps {
       email: string;
     };
   };
+  onFavourite?: (productId: string) => void;
+  isFavourite?: boolean;
+  favouriteLoading?: boolean;
+  deleteFavouriteLoading?: boolean;
   onDelete?: (productId: string) => void;
   isOwnProduct?: boolean;
   showDateAndViews?: boolean;

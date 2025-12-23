@@ -21,11 +21,12 @@ const Navigation: React.FC = () => {
   };
 
   if (!user) {
-    return null; // Don't show navigation if user is not logged in
+    return null;
   }
 
   const navItems = [
     { path: "/all-products", label: "All Products" },
+    { path: "/favourites", label: "Favourites" },
     { path: "/my-products", label: "My Products" },
     { path: "/product/new", label: "Create Product" },
     { path: "/transaction-history", label: "Transaction History" },
@@ -55,11 +56,10 @@ const Navigation: React.FC = () => {
               <Link
                 key={item.path}
                 to={item.path}
-                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                  isActive(item.path)
-                    ? "bg-blue-100 text-blue-700"
-                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-                }`}
+                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive(item.path)
+                  ? "bg-blue-100 text-blue-700"
+                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                  }`}
               >
                 {item.label}
               </Link>
@@ -84,11 +84,10 @@ const Navigation: React.FC = () => {
               <Link
                 key={item.path}
                 to={item.path}
-                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                  isActive(item.path)
-                    ? "bg-blue-100 text-blue-700"
-                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-                }`}
+                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive(item.path)
+                  ? "bg-blue-100 text-blue-700"
+                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                  }`}
               >
                 {item.label}
               </Link>

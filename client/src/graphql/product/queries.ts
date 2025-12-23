@@ -79,3 +79,29 @@ export const GET_PRODUCTS_BY_USER_ID = gql`
     }
   }
 `;
+
+export const GET_FAVOURITES = gql`
+  query getFavouritesByUser {
+    getFavouritesByUser {
+      id
+      productId 
+      createdAt
+      product {
+        id
+        title
+        description
+        categories
+        purchasePrice
+        rentPrice
+        createdAt
+        updatedAt
+        owner {
+          id
+          firstName
+          lastName
+          email
+        }
+      }
+    }
+  }
+`;

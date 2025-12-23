@@ -175,6 +175,35 @@ export class ProductService {
     }
   }
 
+  public static async getFavouritesByUserId(userId: string) {
+    return prisma.like.findMany({
+      where: { userId },
+      include: {
+        product: {
+          select: {
+            id: true,
+            title: true,
+            description: true,
+            categories: true,
+            purchasePrice: true,
+            rentPrice: true,
+            createdAt: true,
+            updatedAt: true,
+            owner: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                email: true
+              }
+            }
+          },
+        },
+      },
+    });
+  }
+
+
   public static async editProduct(id: string, data: Partial<IProductPayload>) {
     try {
       const validationErrors = this.validateProductData(data);
@@ -283,6 +312,45 @@ export class ProductService {
       );
     }
   }
+
+  public static async createFavourite(productId: string, userId: string) {
+    try {
+      return await prisma.like.create({
+        data: {
+          productId,
+          userId,
+        },
+      });
+    } catch (error) {
+      console.error("Error creating favourite:", error);
+      throw new Error(
+        error instanceof Error
+          ? `Creating favourite failed: ${error.message}`
+          : "An unexpected error occurred while creating the favourite."
+      );
+    }
+  }
+
+  public static async deleteFavourite(productId: string, userId: string) {
+    try {
+      return await prisma.like.delete({
+        where: {
+          productId_userId: {
+            productId,
+            userId,
+          },
+        },
+      });
+    } catch (error: any) {
+      console.error("Error deleting favourite:", error);
+      throw new Error(
+        error instanceof Error
+          ? `Deleting favourite failed: ${error.message}`
+          : "An unexpected error occurred while deleting the favourite."
+      );
+    }
+  }
+
 }
 
 export default ProductService;

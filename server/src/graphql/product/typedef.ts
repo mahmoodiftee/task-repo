@@ -19,10 +19,19 @@ export const typeDefs = `#graphql
         updatedAt: String!
     }
 
+    type Favourite {
+        id: String!
+        productId: String!
+        userId: String!
+        createdAt: String
+        product: Product
+    }
+
     type Query {
         getProductById(id: String!): Product
         getProductsByUserId(ownerId: String!): [Product]
         getAllProducts: PaginatedProducts
+        getFavouritesByUser: [Favourite]
     }
 
     type PaginatedProducts {
@@ -54,5 +63,8 @@ export const typeDefs = `#graphql
         deleteProduct(id: String!): Product
 
         incrementViews(id: String!): Product
+
+        createFavourite(productId: String!): Favourite
+        deleteFavourite(productId: String!): Favourite
     }
 `;

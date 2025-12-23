@@ -17,6 +17,7 @@ model User {
   password     String
   products     Product[]
   transactions Transaction[]
+  likes        Like[]
 
   @@map("users")
 }
@@ -35,6 +36,7 @@ model Product {
   categories    String?
   owner         User          @relation(fields: [ownerId], references: [id])
   transactions  Transaction[]
+  likes         Like[]
 
   @@map("products")
 }
@@ -51,6 +53,18 @@ model Transaction {
   product         Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@map("transactions")
+}
+
+model Like {
+  id              String          @id @default(uuid())
+  createdAt       DateTime        @default(now()) @map("created_at")
+  userId          String          @map("user_id")
+  productId       String          @map("product_id")
+  user            User            @relation(fields: [userId], references: [id])
+  product         Product         @relation(fields: [productId], references: [id])
+  
+  @@unique([productId, userId])
+  @@map("likes")
 }
 
 enum RentalPeriod {

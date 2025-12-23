@@ -11,6 +11,7 @@ import MyProductsPage from "../pages/MyProductsPage";
 import NotFoundPage from "../pages/NotFoundPage";
 
 import PrivateRoute from "./PrivateRoute";
+import FavouritesPage from "../pages/FavouritesPage";
 
 export const router = createBrowserRouter([
   {
@@ -31,6 +32,7 @@ export const router = createBrowserRouter([
       {
         children: [
           { path: "/my-products", element: <MyProductsPage /> },
+          { path: "/favourites", element: <FavouritesPage /> },
           { path: "/product/new", element: <CreateProductPage /> },
           { path: "/product/:id/edit", element: <EditProductPage /> },
           { path: "/transaction-history", element: <TransactionHistoryPage /> },

@@ -32,6 +32,14 @@ const queries = {
     const userId = context.user.id;
     return await ProductService.getProductsByUser(userId);
   },
+
+  // Get a single product by ID
+  getFavouritesByUser: async (_: unknown, __: unknown, context: IContextType) => {
+    if (!context || !context.user) throw new Error('Unauthorized');
+    const userId = context.user.id;
+    return await ProductService.getFavouritesByUserId(userId);
+  },
+
 };
 
 const mutations = {
@@ -93,6 +101,21 @@ const mutations = {
     if (!context || !context.user) throw new Error('Unauthorized');
     return await ProductService.incrementViews(args.id);
   },
+
+  //create new favourite
+  createFavourite: async (_: unknown, args: { productId: string }, context: IContextType) => {
+    if (!context || !context.user) throw new Error('Unauthorized');
+    const userId = context.user.id;
+    return await ProductService.createFavourite(args.productId, userId);
+  },
+  //delete favourite
+  deleteFavourite: async (_: unknown, args: { productId: string }, context: IContextType) => {
+    if (!context || !context.user) throw new Error('Unauthorized');
+
+    const userId = context.user.id;
+    return await ProductService.deleteFavourite(args.productId, userId);
+  },
+
 };
 
 export const resolvers = {

@@ -1,13 +1,18 @@
 import React, { useState } from "react";
 import { FaTrash } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import { Button, Modal, Text, Title, Group } from "@mantine/core";
+import { Button, Modal, Text, Title, Group, Loader } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { IProductCardProps } from "../../TypeDefs";
+import { FaRegHeart, FaHeart } from "react-icons/fa";
 
 const ProductCard = ({
   product,
   onDelete,
+  onFavourite,
+  favouriteLoading,
+  deleteFavouriteLoading,
+  isFavourite,
   isOwnProduct = false,
   showDateAndViews = true,
 }: IProductCardProps) => {
@@ -27,6 +32,13 @@ const ProductCard = ({
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
     setIsModalOpen(true);
+  };
+
+  const handleFavouriteClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onFavourite) {
+      onFavourite(product.id);
+    }
   };
 
   const confirmDelete = () => {
@@ -70,8 +82,21 @@ const ProductCard = ({
       >
         <div className="flex justify-between items-center">
           <Title order={4}>{product.title}</Title>
-          {isOwnProduct && (
-            <Button variant="subtle" color="red" onClick={handleDelete} leftSection={<FaTrash />} />
+          {isOwnProduct && onDelete && (
+            <Button
+              variant="subtle"
+              color="red"
+              onClick={handleDelete}
+              leftSection={<FaTrash />}
+            />
+          )}
+          {!isOwnProduct && onFavourite && (
+            <Button
+              variant="transparent"
+              color="red"
+              onClick={handleFavouriteClick}
+              leftSection={favouriteLoading || deleteFavouriteLoading ? <Loader /> : isFavourite ? <FaHeart /> : <FaRegHeart />}
+            />
           )}
         </div>
 

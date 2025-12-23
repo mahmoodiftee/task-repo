@@ -1,16 +1,15 @@
 import { useEffect, useState } from "react";
 import { useMutation, useQuery } from "@apollo/client";
 import { Pagination, TextInput, Select, Group } from "@mantine/core";
-
 import ErrorMessage from "../../shared/Components/ErrorMessage";
 import Loading from "../../shared/Components/Loader";
 import ProductCard from "../../shared/Components/ProductCard";
-import { GET_ALL_PRODUCTS } from "../../graphql/product/queries";
+import { GET_ALL_PRODUCTS, GET_FAVOURITES } from "../../graphql/product/queries";
 import { IProduct } from "../../shared/TypeDefs";
 import { useAuth } from "../../shared/Hooks/useAuth";
-import { DELETE_PRODUCT } from "../../graphql/product/mutations";
 import { notifications } from "@mantine/notifications";
 import { useSearchParams } from "react-router-dom";
+import { CREATE_FAVOURITE_PRODUCT, DELETE_FAVOURITE_PRODUCT } from "../../graphql/product/mutations";
 
 const AllProductsPage = () => {
   const { user } = useAuth();
@@ -19,6 +18,7 @@ const AllProductsPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const pageFromUrl = parseInt(searchParams.get("page") || "1", 10);
   const [activePage, setActivePage] = useState(pageFromUrl);
+  const [favouriteProducts, setFavouriteProducts] = useState<Set<string>>(new Set());
   const limit = 3;
 
   const { data, loading, error } = useQuery(GET_ALL_PRODUCTS, {
@@ -29,7 +29,6 @@ const AllProductsPage = () => {
       categoryFilter: categoryFilter || null,
     },
   });
-  const [deleteProduct] = useMutation(DELETE_PRODUCT);
 
   const products: IProduct[] = data?.getAllProducts.products || [];
   const totalCount: number = data?.getAllProducts.totalCount || 0;
@@ -45,24 +44,56 @@ const AllProductsPage = () => {
     setSearchParams({ page: "1" });
   }, [searchTerm, categoryFilter]);
 
-
   useEffect(() => {
     if (totalPages > 0 && activePage > totalPages) {
       handlePageChange(totalPages);
     }
   }, [totalPages, activePage]);
 
-  const handleDelete = async (productId: string) => {
+  const [createFavourite, { loading: favouriteLoading }] = useMutation(CREATE_FAVOURITE_PRODUCT);
+  const [deleteFavourite, { loading: deleteFavouriteLoading }] = useMutation(DELETE_FAVOURITE_PRODUCT);
+
+  const { data: favouritesData } = useQuery(GET_FAVOURITES, {
+    skip: !user,
+  });
+
+  useEffect(() => {
+    if (favouritesData?.getFavouritesByUser) {
+      const favoriteIds = new Set<string>(
+        favouritesData.getFavouritesByUser.map((fav: any) => fav.productId)
+      );
+      setFavouriteProducts(favoriteIds);
+    }
+  }, [favouritesData]);
+
+  const handleFavourite = async (productId: string) => {
+    const isFavourited = favouriteProducts.has(productId);
+
+    setFavouriteProducts(prev => {
+      const newSet = new Set(prev);
+      if (isFavourited) {
+        newSet.delete(productId);
+      } else {
+        newSet.add(productId);
+      }
+      return newSet;
+    });
+
     try {
-      await deleteProduct({
-        variables: { id: productId },
-      });
-    } catch (error) {
-      console.error("Error deleting product:", error);
-      notifications.show({
-        title: "Error deleting product",
-        message: "An error occurred while deleting the product",
-        color: "red",
+      if (favouriteProducts.has(productId)) {
+        await deleteFavourite({ variables: { productId } });
+        notifications.show({ title: "Removed from favorites", message: "Product removed", color: "blue" });
+      } else {
+        await createFavourite({ variables: { productId } });
+        notifications.show({ title: "Added to favorites", message: "Product added", color: "green" });
+      }
+    } catch (err: any) {
+      notifications.show({ title: "Error", message: err.message || "Failed to update favorite", color: "red" });
+      setFavouriteProducts(prev => {
+        const newSet = new Set(prev);
+        if (newSet.has(productId)) newSet.delete(productId);
+        else newSet.add(productId);
+        return newSet;
       });
     }
   };
@@ -75,7 +106,7 @@ const AllProductsPage = () => {
     <div className="min-h-screen bg-gray-100 py-10">
       <div className="max-w-6xl mx-auto px-4">
         <h2 className="font-bold text-3xl text-center mb-8 text-gray-800">All Products</h2>
-        <Group justify="center" align="center" gap="md" >
+        <Group justify="center" align="center" gap="md">
           <TextInput
             placeholder="Search by title..."
             value={searchTerm}
@@ -83,7 +114,8 @@ const AllProductsPage = () => {
           />
           <Select
             placeholder="Filter by Category"
-            data={["Electronics",
+            data={[
+              "Electronics",
               "Games",
               "Sports",
               "Beauty",
@@ -95,7 +127,8 @@ const AllProductsPage = () => {
               "Kids",
               "Automotive",
               "Books",
-              "Movies"]}
+              "Movies"
+            ]}
             value={categoryFilter}
             onChange={setCategoryFilter}
             clearable
@@ -107,7 +140,14 @@ const AllProductsPage = () => {
             <>
               <div className="w-2/3 mx-auto grid grid-cols-1 gap-6">
                 {products.map((product: IProduct) => (
-                  <ProductCard key={product.id} product={product} onDelete={handleDelete} />
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                    onFavourite={product.owner.id !== user?.id ? () => handleFavourite(product.id) : undefined}
+                    isFavourite={favouriteProducts.has(product.id)}
+                    favouriteLoading={favouriteLoading}
+                    deleteFavouriteLoading={deleteFavouriteLoading}
+                  />
                 ))}
               </div>
               {totalPages > 0 ? (

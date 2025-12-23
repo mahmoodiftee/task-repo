@@ -33,6 +33,27 @@ export const CREATE_PRODUCT = gql`
   }
 `;
 
+export const CREATE_FAVOURITE_PRODUCT = gql`
+  mutation createFavourite($productId: String!) {
+    createFavourite(productId: $productId) {
+      id
+      productId
+      userId
+      createdAt
+    }
+  }
+`;
+
+export const DELETE_FAVOURITE_PRODUCT = gql`
+  mutation deleteFavourite($productId: String!) {
+    deleteFavourite(productId: $productId) {
+      productId
+    }
+  }
+`;
+
+
+
 export const EDIT_PRODUCT = gql`
   mutation EditProduct(
     $id: String!
