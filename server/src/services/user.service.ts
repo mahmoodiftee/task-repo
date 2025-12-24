@@ -102,27 +102,49 @@ class UserService {
 
   public static async loginUser(payload: ILoginUserPayload) {
     const { email, password } = payload;
+    const user = await this.getUserByEmail(email);
+    if (!user || !(await bcrypt.compare(password, user.password))) {
+      throw new Error("Invalid email or password.");
+    }
+    const accessToken = JWT.sign(
+      { id: user.id, email: user.email },
+      process.env.JWT_SECRET || "default_secret",
+      { expiresIn: "15m" }
+    );
+    const refreshToken = JWT.sign(
+      { id: user.id },
+      process.env.JWT_SECRET || "default_secret",
+      { expiresIn: "7d" }
+    );
 
+    const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
+    await prismaClient.user.update({
+      where: { id: user.id },
+      data: { refreshToken: hashedRefreshToken }
+    });
+    return { accessToken, refreshToken };
+  }
+
+  public static async refreshUserToken(incomingRefreshToken: string) {
     try {
-      const user = await this.getUserByEmail(email);
+      const decoded = JWT.verify(incomingRefreshToken, process.env.JWT_SECRET!) as { id: string };
 
-      if (!user || !(await bcrypt.compare(password, user.password))) {
-        throw new Error("Invalid email or password.");
-      }
-
-      const token = JWT.sign({ id: user.id, email: user.email }, JWT_SECRET, {
-        expiresIn: "1h",
+      const user = await prismaClient.user.findUnique({
+        where: { id: decoded.id },
       });
 
-      return token;
-    } catch (error) {
-      if (error instanceof Error) {
-        console.error("Error logging in user:", error.message);
-        throw error;
-      }
-      throw new Error("An unexpected error occurred during login.");
-    }
+      if (!user || !user.refreshToken) throw new Error("Invalid request");
+      const isValid = await bcrypt.compare(incomingRefreshToken, user.refreshToken);
+      if (!isValid) throw new Error("Invalid refresh token");
+      const newAccessToken = JWT.sign(
+        { id: user.id, email: user.email },
+        process.env.JWT_SECRET!,
+        { expiresIn: "15m" }
+      );
+      return newAccessToken;
+    } catch (e) { throw new Error("Invalid or expired refresh token"); }
   }
+
 }
 
 export default UserService;

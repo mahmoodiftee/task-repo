@@ -18,6 +18,7 @@ model User {
   products     Product[]
   transactions Transaction[]
   likes        Like[]
+  refreshToken String?       @map("refresh_token")
 
   @@map("users")
 }

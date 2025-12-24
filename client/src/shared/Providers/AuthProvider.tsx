@@ -27,8 +27,9 @@ export const AuthProvider = ({ children }: IAuthProviderProps) => {
     fetchPolicy: "network-only",
   });
 
-  const login = (token: string) => {
-    localStorage.setItem("token", token);
+  const login = (userData: { accessToken: string; refreshToken: string }) => {
+    localStorage.setItem("token", userData.accessToken);
+    localStorage.setItem("refreshToken", userData.refreshToken);
     client.clearStore().then(() => {
       refetch();
     });
@@ -36,6 +37,7 @@ export const AuthProvider = ({ children }: IAuthProviderProps) => {
 
   const logout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("refreshToken");
     client.clearStore().then(() => {
       client.resetStore();
       setUser(null);

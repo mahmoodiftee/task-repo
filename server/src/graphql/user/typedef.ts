@@ -7,4 +7,8 @@ export const typeDefs = `#graphql
         email: String!
         phoneNumber: String
     }
+    type AuthPayload {
+    accessToken: String!
+    refreshToken: String!
+    }
 `;

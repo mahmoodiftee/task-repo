@@ -3,6 +3,7 @@ import {
   ILoginUserPayload,
   IRegisterUserPayload,
 } from "../../lib/types";
+import { GraphQLError } from "graphql";
 import UserService from "../../services/user.service";
 
 const queries = {
@@ -12,6 +13,11 @@ const queries = {
       const user = await UserService.getUserById(id);
       return user;
     }
+    throw new GraphQLError('Unauthorized', {
+      extensions: {
+        code: 'UNAUTHENTICATED',
+      },
+    });
   },
 };
 
@@ -23,9 +29,12 @@ const mutations = {
   },
 
   loginUser: async (_: unknown, payload: ILoginUserPayload) => {
-    const token = await UserService.loginUser(payload);
+    const result = await UserService.loginUser(payload);
+    return result;
+  },
 
-    return token;
+  refreshToken: async (_: unknown, { token }: { token: string }) => {
+    return await UserService.refreshUserToken(token);
   },
 };
 

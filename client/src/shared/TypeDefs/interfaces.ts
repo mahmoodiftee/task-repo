@@ -97,7 +97,7 @@ export interface IUser {
 
 export interface IAuthContextType {
   user: IUser | null;
-  login: (token: string) => void;
+  login: (userData: { accessToken: string; refreshToken: string }) => void;
   logout: () => void;
   loading: boolean;
 }

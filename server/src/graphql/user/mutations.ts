@@ -8,5 +8,6 @@ export const mutations = `#graphql
         password: String!
     ): String
 
-    loginUser(email: String!, password: String!): String
+    loginUser(email: String!, password: String!): AuthPayload!
+    refreshToken(token: String!): String!
 `;
