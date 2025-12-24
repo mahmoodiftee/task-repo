@@ -52,14 +52,12 @@ const AllProductsPage = () => {
 
   const [createFavourite, { loading: favouriteLoading }] = useMutation(CREATE_FAVOURITE_PRODUCT);
   const [deleteFavourite, { loading: deleteFavouriteLoading }] = useMutation(DELETE_FAVOURITE_PRODUCT);
-
   const { data: favouritesData } = useQuery(GET_FAVOURITES, {
     skip: !user,
   });
-
   useEffect(() => {
     if (favouritesData?.getFavouritesByUser) {
-      const favoriteIds = new Set<string>(
+      const favoriteIds = new Set(
         favouritesData.getFavouritesByUser.map((fav: any) => fav.productId)
       );
       setFavouriteProducts(favoriteIds);
