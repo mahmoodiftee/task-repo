@@ -55,14 +55,17 @@ const AllProductsPage = () => {
   const { data: favouritesData } = useQuery(GET_FAVOURITES, {
     skip: !user,
   });
+
   useEffect(() => {
     if (favouritesData?.getFavouritesByUser) {
-      const favoriteIds = new Set(
+      const favoriteIds = new Set<string>(
         favouritesData.getFavouritesByUser.map((fav: any) => fav.productId)
       );
       setFavouriteProducts(favoriteIds);
     }
   }, [favouritesData]);
+
+
 
   const handleFavourite = async (productId: string) => {
     const isFavourited = favouriteProducts.has(productId);
